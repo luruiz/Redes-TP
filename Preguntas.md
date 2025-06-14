@@ -136,10 +136,17 @@ Sí, BatchNorm actúa como regularizador porque al usar estadísticas que modifi
    - Implementar un criterio para detener el entrenamiento si la validación no mejora después de N épocas.
 
 ### Preguntas prácticas:
-- ¿Qué efecto tuvo `BatchNorm` en la estabilidad y velocidad del entrenamiento?
-- ¿Cambió la performance de validación al combinar `BatchNorm` con `Dropout`?
-- ¿Qué combinación de regularizadores dio mejores resultados en tus pruebas?
-- ¿Notaste cambios en la loss de entrenamiento al usar `BatchNorm`?
+
+- **¿Qué efecto tuvo `BatchNorm` en la estabilidad y velocidad del entrenamiento?**
+
+
+- **¿Cambió la performance de validación al combinar `BatchNorm` con `Dropout`?**
+
+- **¿Qué combinación de regularizadores dio mejores resultados en tus pruebas?**
+
+
+- **¿Notaste cambios en la loss de entrenamiento al usar `BatchNorm`?**
+
 
 ## 8. Inicialización de Parámetros
 
