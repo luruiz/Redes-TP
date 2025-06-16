@@ -139,23 +139,57 @@ Sí, BatchNorm actúa como regularizador porque al usar estadísticas que modifi
 
 - **¿Qué efecto tuvo `BatchNorm` en la estabilidad y velocidad del entrenamiento?**
 
+BatchNorm reduce la covarianza interna ya que normaliza la salida de las neuronas a una media 0 y varianza unitaria, logrando que las capas siguientes reciban distribuciones mas estables. En este caso, al ser una red de dos capas el desvanecimiento/explosion de gradiente no es un problema, pero si lo fuera, el agregado de BatchNorm mitiga esos efectos. El entrenamiento no se vio accelerado notablemente. 
+
+![Modelo con BatchNorm](imagenes/BatchNorm.png)
+*Figura: Modelo con BatchNorm*
+
+![Modelo basico](imagenes/ModeloBasico.png)
+*Figura: Modelo Basico*
 
 - **¿Cambió la performance de validación al combinar `BatchNorm` con `Dropout`?**
+
+Al combinar BatchNorm con Dropout de p = 0.1 el val_accuracy se redujo a 60.8%, mientras que el modelo sin regularizacion dio una accuracy de 68.5%, con solo BatchNorm dio 63.5% y con solo Dropout de p=0.1 dio 64.6%. Esto muestra que al combinar ambas tecnicas la performance de validacion empeoro con respecto a cuando se usaron las tecnicas por separado. Esto se debe a que mientras BatchNorm estabiliza y acelera el entrenamiento, lo cual tiene cierto efecto regularizador, el Dropout apaga neuronas aleatoriamente introduciendo ruido luego de la normalizacion de BatchNorm, resultando en una combinacion contraproducente. 
+
+![Modelo con BacthNorm y Dropout=0.1](imagenes/BatchNorma%20+%20Dropout=0.1.png)
+*Figura: Modelo con BatchNorm y Dropout=0.1*
 
 - **¿Qué combinación de regularizadores dio mejores resultados en tus pruebas?**
 
 
 - **¿Notaste cambios en la loss de entrenamiento al usar `BatchNorm`?**
 
+Al usar BatchNorm, la loss de entrenamineto decae de una forma mas sueve y lenta, el entrenamiento toma saltos mas chicos entre cada iteracion como era de esperarse. 
+
+![](imagenes/Train%20Loss%20sin%20Batch%20Norm.png)
+*Figura: Train Loss sin BatchNorm*
+
+![](imagenes/Train%20Loss%20con%20BatchNorm.png)
+*Figura: Train Loss sin BatchNorm*
+
 
 ## 8. Inicialización de Parámetros
 
 ### Preguntas teóricas:
-- ¿Por qué es importante la inicialización de los pesos en una red neuronal?
-- ¿Qué podría ocurrir si todos los pesos se inicializan con el mismo valor?
-- ¿Cuál es la diferencia entre las inicializaciones de Xavier (Glorot) y He?
-- ¿Por qué en una red con ReLU suele usarse la inicialización de He?
-- ¿Qué capas de una red requieren inicialización explícita y cuáles no?
+- **¿Por qué es importante la inicialización de los pesos en una red neuronal?**
+
+Es importante para evitar problemas durante el entrenamienot como el desvanecimiento o explosion de gradiente. Ademas, una correcta inicializacion mejora la convergencia de la red y hace que el proceso de entrenamiento sea mas rapido.
+
+- **¿Qué podría ocurrir si todos los pesos se inicializan con el mismo valor?**
+
+Al inicializar todos los pesos en un mismo valor, la salida de las neuronas de una misma capa seran todas iguales por lo que en el proceso de backpropagation las neuronas tienen todas el mismo gradiente. La red no aprendera correctamente.
+
+- **¿Cuál es la diferencia entre las inicializaciones de Xavier (Glorot) y He?**
+
+Ambas inicializaciones se basan en mantener estable la varianza de las activaciones. Xavier asume funciones de activacion simetricas mientras que He esta disenada para funciones de activacion tipo ReLU. 
+
+- **¿Por qué en una red con ReLU suele usarse la inicialización de He?**
+
+La funcion de activacion ReLU anula activaciones negativas por lo que la varianza efectiva a la salida se ve reducida. La inicializacion He compensa esto al usar una mayor varianza inicial para que las activaciones no se apaguen y el entrenamiento sea mas estable.
+
+- **¿Qué capas de una red requieren inicialización explícita y cuáles no?**
+
+Las capas densas (fully connected) requieren inicializacion explicita. Las capas ReLU, Dropout y BatchNorm no requieren inicializacion explicita.  
 
 ### Actividades de modificación:
 1. Agregar inicialización manual en el modelo:
@@ -183,6 +217,25 @@ Sí, BatchNorm actúa como regularizador porque al usar estadísticas que modifi
 
 ### Preguntas prácticas:
 - ¿Qué diferencias notaste en la convergencia del modelo según la inicialización?
-- ¿Alguna inicialización provocó inestabilidad (pérdida muy alta o NaNs)?
-- ¿Qué impacto tiene la inicialización sobre las métricas de validación?
-- ¿Por qué `bias` se suele inicializar en cero?
+
+Se nota que al utilizar la inicializacion He, en proceso de entrenamiento es mas rapido. Con 14 epochs ya termina el proceso de entrenamiento mientras que Xavier requiere de 21 epoochs. Sin embargo, se puede notar que se lograron mejores resultados con la inicializacion Xavier a pesar de que en la red se usa ReLU. La inicializacion uniforme da los peores resultados porque 
+
+![](imagenes/Xavier%20train_accuracy-val_accuracy.png)
+*Figura: Inicializacion Xavier*
+
+![](imagenes/He%20train_accuracy-val_accuracy(1).png)
+*Figura: Inicializacion He*
+
+![](imagenes/Uniform%20train_accuracy-val_accuracy(2).png)
+*Figura: Inicializacion Unifrome*
+
+- **¿Alguna inicialización provocó inestabilidad (pérdida muy alta o NaNs)?**
+
+
+
+- **¿Qué impacto tiene la inicialización sobre las métricas de validación?**
+
+
+
+- **¿Por qué `bias` se suele inicializar en cero?**
+
