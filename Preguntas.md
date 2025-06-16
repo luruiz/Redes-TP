@@ -11,7 +11,7 @@ Albumentations está optimizado en OpenCV, por lo que tenderá a ser más rápid
 - **¿Qué hace `A.Normalize()`? ¿Por qué es importante antes de entrenar una red?**
 Para entrenar una red es importante eliminar los sesgos que puedan aparecer. Por ejemplo, nos podría importar hacer que todos los canales tengan media cero y varianza unitaria, para que el entrenamiento converja de manera rápida y estable. Esto es lo que hace la función `normalize()` de Albumentations. A cada píxel le resta la media por canal y lo divide por el desvío estándar del canal.
 
-- ¿Por qué convertimos las imágenes a `ToTensorV2()` al final de la pipeline?
+- **¿Por qué convertimos las imágenes a `ToTensorV2()` al final de la pipeline?**
 Esta función convierte la imagen, que es un array de numpy de HxWxC en un `torch.FloatTensor` con determinada forma y valores entre 0 y 1. Esto es lo que esperan los modelos de PyTorch a la entrada.
 
 ## 2. Arquitectura del Modelo
@@ -67,39 +67,63 @@ Viendo las imágenes que seusaron para validar el modelo uno puede ver más all�
 
 - **¿Cómo se puede comparar el desempeño de distintos experimentos en TensorBoard?**
 
+En primer lugar, se deben guardar los logs de cada experimento en carpetas separaas para que no se sobre escriban, esto se logra usando: 
+
+```Python
+SummaryWriter(log_dir="runs/exp1")
+SummaryWriter(log_dir="runs/exp2")
+```
+
+Se inicializa TensorBoard con el comando `tensorboard --logdir=runs`, TensorBoard detecta todos los experimentos y muestra sus metricas en el mismo grafico, facilitando la comapracion visual entre experimentos.
+
 ## 6. Generalización y Transferencia
 - **¿Qué cambios habría que hacer si quisiéramos aplicar este mismo modelo a un dataset con 100 clases?**
+
 Habría que cambiar `num_classes` a 100 para que la capa de salida tenga la dimensión correcta y actualizar el label encoder para que tenga las 100 clases con sus respectivas labels.
 
 - **¿Por qué una CNN suele ser más adecuada que una MLP para clasificación de imágenes?**
+
 Las CNNs permiten captar patrones locales, es decir, relaciones entre pixeles vecinos. Son más eficientes ya que un solo kernel recorre toda la imagen. Las primeras capas detectan rasgos simples, y las sucesivas capas pueden aprender detalle y conceptos más complejos, facilitando representaciones más ricas. También, al tener menor cantidad de parámetros, suelen generalizar muy bien.
 
 - **¿Qué problema podríamos tener si entrenamos este modelo con muy pocas imágenes por clase?**
+
 Con pocas imágenes por clase el modelo tendría mucha dificultad en generalizar. Esto llevaría a confusión entre las clases por no llegar a cubrir todas las variaciones dentro de una clase, como también podría llevar a overfitting.
 
 - **¿Cómo podríamos adaptar este pipeline para imágenes en escala de grises?**
+
+Las imagentes en escala de gris tiene un solo canal en lugar de 3 RGB por lo que tendra que cambiar la etapa de entrada de la red. Antes la entrada era de 3×64×64 y ahora pasa a ser de 1×64×64. El resto del pipeline no necesita cambiar. 
 
 ## 7. Regularización
 
 ### Preguntas teóricas:
 - **¿Qué es la regularización en el contexto del entrenamiento de redes neuronales?**
+
 Es el conjunto de técnicas que se usan para mejorar la capacidad de generalización de la red.
 
 - **¿Cuál es la diferencia entre `Dropout` y regularización `L2` (weight decay)?**
+
 Droput apaga aleatoriamente neuronas durante el entrenamiento mientras que L2 añade a la loss un término que penaliza pesos grandes.
 
 - **¿Qué es `BatchNorm` y cómo ayuda a estabilizar el entrenamiento?**
+
 BatchNorm normaliaz las distribuciones de activaciones capa a capa. Esto hace que las capas posteriores reciban entradas con varianza cercana a 1 y media cercana a cero de modo que sus cambios de una actualización a otra sean más pequeños, es decir, estables.
 
 - **¿Cómo se relaciona `BatchNorm` con la velocidad de convergencia?**
+
 Al controlar la estabilidad de las activaciones de una capa a otra y, consecuentemente, haber estabilizado las variaciones entre sucesivas actualizaciones de los pesos en capas intermedias y a la salida, se reduce enormemente la probabilidad de que una actualización muy grande desestabilice la red. Esto permite un entrenamiento más rápido.
 
 - **¿Puede `BatchNorm` actuar como regularizador? ¿Por qué?**
+
 Sí, BatchNorm actúa como regularizador porque al usar estadísticas que modifican la actualización de los pesos hay un "drop-in" de ruido, que ayuda a lograr una mejor generalización.
 
 - **¿Qué efectos visuales podrías observar en TensorBoard si hay overfitting?**
+
+Si hay overfitting se va a observar que la training loss sigue disminuyendo pero la validation loss no mejora o comienza a empeorar, o tambien se puede observar que el training accuracy aumenta mientras que el validation accuracy disminuye. Esto indica que el modelo esta memorizando los datos de entrenamiento por lo que no generaliza correctamente. La divergencia entre las curvas de entrenamiento y train luego de un numero de epocas suele marcar el inicio de overfitting.
+
 - **¿Cómo ayuda la regularización a mejorar la generalización del modelo?**
-*No queda claro si se refiere a un metodo de regularizacion en particular, el que estemos usando, la regularizacion como concepto, etc... preguntar.*
+
+La regularizacion busca evitar la situacion de overfitting para mejorar la generalizacion del modelo. Limita la capacidad de la red a memorizar los datos de entrenamiento, focalizando el aprendizaje a patrones simples y robustos. Se penaliza la complejidad del modelo agregando terminos a la loss function ya que un modelo muy ajustado generalmente presenta pesos grandes, la regularizacion puede penalizar esto. Tambien se puede introducir ruido en el entrenamiento para que el modelo se vuelva tolerante a variaciones en los datos de entrenamiento favoreciendo la generalizacion.
+
 
 ### Actividades de modificación:
 1. Agregar Dropout en la arquitectura MLP:
@@ -216,7 +240,8 @@ Las capas densas (fully connected) requieren inicializacion explicita. Las capas
      ```
 
 ### Preguntas prácticas:
-- ¿Qué diferencias notaste en la convergencia del modelo según la inicialización?
+
+- **¿Qué diferencias notaste en la convergencia del modelo según la inicialización?**
 
 Se nota que al utilizar la inicializacion He, en proceso de entrenamiento es mas rapido. Con 14 epochs ya termina el proceso de entrenamiento mientras que Xavier requiere de 21 epoochs. Sin embargo, se puede notar que se lograron mejores resultados con la inicializacion Xavier a pesar de que en la red se usa ReLU. La inicializacion uniforme da los peores resultados porque 
 
@@ -231,11 +256,12 @@ Se nota que al utilizar la inicializacion He, en proceso de entrenamiento es mas
 
 - **¿Alguna inicialización provocó inestabilidad (pérdida muy alta o NaNs)?**
 
-
+La unica inicializacion que provoco inestabilidad es la uniforme ya que resulto en una perdida muy grande.
 
 - **¿Qué impacto tiene la inicialización sobre las métricas de validación?**
 
-
+La inicializacion tuvo un impacto directo en las metricas de validacion ya que en algunos casos acelero la convergencia y mejoro la estabilidad del entrenamiento e incluso provoco mejor o peor val accuracy. 
 
 - **¿Por qué `bias` se suele inicializar en cero?**
 
+El bias en una red no impide que el modelo aprenda correctamente ya que no esta involucrado con la simetria del modelo como ocurre con los pesos. EL valor de bias se ajusta durante el entrenamiento con backpropagation, no se introduce sesgo inicial al inicial todos los bias en cero.
