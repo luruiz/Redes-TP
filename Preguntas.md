@@ -180,6 +180,20 @@ Al combinar BatchNorm con Dropout de p = 0.1 el val_accuracy se redujo a 60.8%, 
 
 - **¿Qué combinación de regularizadores dio mejores resultados en tus pruebas?**
 
+Hicimos dos busquedas de hiperparametros: un caso con BatchNorm y otro con Dropout.
+
+Con Dropout:
+   - VFlip: 0.2
+   - Batch_size: 32
+   - HFlip: 0.2
+   - RBContrast: 0.2
+   - weight_decay: 0.0001
+   - lr: 0.01
+   - dropout: 0.1
+   - input_size: 64
+
+Con BatchNorm:
+   
 
 - **¿Notaste cambios en la loss de entrenamiento al usar `BatchNorm`?**
 
