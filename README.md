@@ -1,5 +1,7 @@
 # skin-dataset-clasification  
-
+---
+**Las respuestas estan en `Preguntas.md`**
+---
 Para generar el entorno
 ```
 $ python -m venv .venv
