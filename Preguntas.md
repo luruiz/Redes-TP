@@ -179,6 +179,18 @@ Al combinar BatchNorm con Dropout de p = 0.1 el val_accuracy se redujo a 60.8%, 
 *Figura: Modelo con BatchNorm y Dropout=0.1*
 
 - **¿Qué combinación de regularizadores dio mejores resultados en tus pruebas?**
+| Parameter    | Value  |
+|--------------|--------|
+| VFlip        | 0.2    |
+| batch_size   | 32     |
+| HFlip        | 0.2    |
+| RGBContrast  | 0.2    |
+| init_weights | xavier |
+| weight_decay | 1e-4   |
+| optimizer    | Adam   |
+| lr           | 0.01   |
+| dropout      | 0.1    |
+| input_size   | 64     |
 
 Hicimos dos busquedas de hiperparametros: un caso con BatchNorm y otro con Dropout.
 
@@ -220,6 +232,8 @@ Al inicializar todos los pesos en un mismo valor, la salida de las neuronas de u
 - **¿Cuál es la diferencia entre las inicializaciones de Xavier (Glorot) y He?**
 
 Ambas inicializaciones se basan en mantener estable la varianza de las activaciones. Xavier asume funciones de activacion simetricas mientras que He esta disenada para funciones de activacion tipo ReLU. 
+
+![](./imagenes/weights.png)
 
 - **¿Por qué en una red con ReLU suele usarse la inicialización de He?**
 

@@ -1,10 +1,17 @@
 # skin-dataset-clasification  
 
 Para generar el entorno
+```
+$ python -m venv .venv
+$ . ./.venv/bin/activate
+$ pip install -r requirements.txt
+```
 
-``` 
-conda create -n {env}  
-conda activate {env}  
-conda install -c conda-forge python==3.12.3  
-pip install -f requirements.txt  
-``` 
+Para levantar el notebook, mlflow y tensorboard
+```
+$ python -m jupyter lab
+$ mlflow ui --port 5000
+$ tensorboard --logdir=/path/to/logdir
+```
+
+Tensorboard suele abrir en el 6006, pero si tenes algo corriendo ahi sube al 6007 y sucesivamente.
